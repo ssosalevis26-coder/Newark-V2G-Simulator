@@ -1,0 +1,70 @@
+{
+  "project": {
+    "name": "Newark V2G Fleet Value Simulator",
+    "location": "Newark, Delaware",
+    "currency": "USD",
+    "analysis_year": 2026,
+    "comparison": "Same 14-bus electric fleet with V2G versus the same fleet without V2G; bus purchase cost is shown as context but excluded from incremental V2G payback.",
+    "evidence_policy": "Every value must be labeled measured, published, inferred, or scenario assumption. Values from comparison sites are not Newark-specific facts."
+  },
+  "fleet": {
+    "bus_count": {"value": 14, "unit": "buses", "evidence": "published fleet-size scenario", "source": "SOURCES.md: University of Delaware Transportation", "note": "UD fleet count only; do not imply the real buses are electric or V2G-capable."},
+    "battery_capacity_kwh_per_bus": {"value": 155, "unit": "kWh", "evidence": "published proxy", "source": "SOURCES.md: WRI, Lessons from Electric School Bus V2G Programs (PGE example)", "note": "Comparison bus battery size; not UD bus specification."},
+    "starting_soc_fraction": {"value": 0.90, "unit": "fraction", "evidence": "scenario assumption", "source": null, "note": "Assume buses are charged before a modeled peak event."},
+    "minimum_departure_soc_fraction": {"value": 0.70, "unit": "fraction", "evidence": "scenario assumption", "source": null, "note": "Editable placeholder for the minimum charge needed before the next route; replace with route-energy analysis when available."},
+    "available_for_peak_event": {"value": 14, "unit": "buses", "evidence": "user-selected scenario assumption", "source": null, "note": "All buses needed for the event are present and connected."}
+  },
+  "event": {
+    "season": "summer",
+    "window_local": "15:00-18:00",
+    "duration_hours": {"value": 3, "evidence": "published comparator", "source": "SOURCES.md: WRI, Lessons from Electric School Bus V2G Programs; three-hour PGE discharge test"},
+    "events_per_year": {"value": 20, "evidence": "scenario assumption", "source": null, "note": "For peak-event energy potential only; not multiplied into PJM regulation benchmark revenue."},
+    "dispatch_power_limit_kw_per_bus": {"value": 60, "evidence": "published comparator", "source": "SOURCES.md: WRI PGE example and Heliox 60 kW V2G charger page", "note": "Charger ceiling; usable event power is also limited by energy above the departure reserve."},
+    "site_export_limit_kw": {"value": 840, "evidence": "scenario assumption", "source": null, "note": "14 x 60 kW nameplate limit; no UD interconnection/export approval is implied."}
+  },
+  "technical": {
+    "round_trip_efficiency": {"value": 0.90, "evidence": "published measured comparator", "source": "SOURCES.md: UD/Exelon V2G fleet operations report (2026)", "note": "Pilot-measured comparator; not a UD bus measurement."},
+    "discharge_efficiency": {"value": 0.96, "evidence": "published measured comparator maximum", "source": "SOURCES.md: UD/Exelon V2G fleet operations report (2026)", "note": "Measured maximum at the tested operating point; use as an editable event-discharge proxy, not as a bus measurement."},
+    "regulation_average_power_throughput_ratio": {"value": 0.26, "unit": "fraction of bid power", "evidence": "published measured comparator", "source": "SOURCES.md: UD/Exelon V2G fleet operations report (2026)"},
+    "regulation_dispatch_power_kw_per_vehicle": {"value": 29, "evidence": "published measured comparator", "source": "SOURCES.md: UD/Exelon V2G fleet operations report (2026)", "note": "Pilot achieved 29 kW from a 33 kW-rated EV; used as a conservative per-bus market-equivalent, not a bus test result."},
+    "availability_hours_per_week": {"value": 128, "unit": "hours/week", "evidence": "published comparator scenario", "source": "SOURCES.md: UD/Exelon V2G fleet operations report (2026)", "note": "Equivalent to the report's 40 hours/week unavailable case. Separate from the explicit all-buses-available peak-event assumption."}
+  },
+  "value_scenarios": {
+    "primary": "pjm_regulation_historical_sensitivity",
+    "regulation_price_usd_per_mwh": {
+      "low": {"value": 21.15, "source_year": 2023, "evidence": "published historical average", "source": "SOURCES.md: UD/Exelon V2G fleet operations report (2026)"},
+      "central": {"value": 36.26, "source_years": "2021-2025 mean", "evidence": "published historical average", "source": "SOURCES.md: UD/Exelon V2G fleet operations report (2026)"},
+      "high": {"value": 54.97, "source_year": 2022, "evidence": "published historical average", "source": "SOURCES.md: UD/Exelon V2G fleet operations report (2026)"}
+    },
+    "retail_energy_cost_usd_per_kwh": {"value": 0.0744, "evidence": "published UD-class rate-study proxy", "source": "SOURCES.md: Newark Electric Cost-of-Service and Rate Design Study, May 29, 2024", "note": "Published study lists the UD large-light-and-power contract energy charge at $0.0744/kWh through its FY2028 projection and says RSA is not applied. Verify actual contract/bill before treating as current tariff."},
+    "dpl_tou_comparator_net_savings_usd_per_33kw_ev_year": {"value": 1048, "evidence": "published modeled comparator", "source": "SOURCES.md: UD/Exelon V2G fleet operations report (2026)", "note": "Display as a separate Delmarva TOU comparison only; do not apply as the UD Newark tariff or add to PJM regulation value."},
+    "stack_market_values": {"value": false, "evidence": "modeling rule", "source": null, "note": "Do not add PJM Regulation and TOU arbitrage in one scenario; the pilot calculated them separately."}
+  },
+  "operating_costs": {
+    "aggregator_fee_fraction_of_gross_market_revenue": {"value": 0.15, "evidence": "scenario assumption", "source": null, "sensitivity": [0.10, 0.15, 0.25]},
+    "battery_wear_cost_usd_per_kwh_throughput": {"value": 0.03, "evidence": "scenario assumption", "source": null, "sensitivity": [0.01, 0.03, 0.08]},
+    "annual_maintenance_cost_usd": {"value": 0, "evidence": "unknown / excluded by default", "source": null, "note": "Show as excluded, not zero real-world cost; editable when a quote or service contract exists."}
+  },
+  "capital_costs": {
+    "v2g_cost_case": "ac_incremental_plus_site_proxy",
+    "ac_v2g_incremental_cost_usd_per_kw": {"value": 20, "evidence": "published manufacturing-cost estimate", "source": "SOURCES.md: UD/Exelon V2G fleet operations report (2026)", "note": "Mass-production incremental manufacturing estimate only; not a complete installed cost."},
+    "charger_nameplate_kw_per_bus": {"value": 60, "evidence": "published comparator", "source": "SOURCES.md: WRI PGE example"},
+    "site_make_ready_installation_proxy_usd": {"value": 113573, "evidence": "inferred from published project package", "source": "SOURCES.md: WRI EBCI case study (2022)", "note": "One-depot placeholder: $545,460 package less $341,957 bus less $89,930 V2G charger. Not a transmission-only price and not a Newark engineering estimate."},
+    "dc_v2g_charger_reference_usd_per_unit": {"value": 89930, "evidence": "published case-specific price", "source": "SOURCES.md: WRI EBCI case study (2022)", "note": "Alternative DC equipment scenario; do not add to AC incremental premium case."},
+    "electric_v2g_bus_reference_usd_per_unit": {"value": 341957, "evidence": "published case-specific price", "source": "SOURCES.md: WRI EBCI case study (2022)", "note": "Full bus reference cost; excluded from incremental V2G economics because baseline includes same electric bus."},
+    "asset_life_years": {"value": 10, "evidence": "scenario assumption", "source": null},
+    "discount_rate_fraction": {"value": 0.05, "evidence": "scenario assumption", "source": null},
+    "transmission_upgrade_equipment_cost_usd": {"value": null, "evidence": "unknown; no Newark study or quote", "source": null, "note": "Do not silently substitute make-ready cost for transmission cost. Include a user-entered value when a utility study or estimate is available."}
+  },
+  "newark_grid_context": {
+    "citywide_summer_peak_mw_2024": {"value": 87.5, "evidence": "published", "source": "SOURCES.md: DNREC Interim Project Report, Table 26", "note": "Citywide context only; never treated as the UD campus feeder peak or hosting capacity."}
+  },
+  "modeling_rules": [
+    "Report the peak-event physical capability and annual market-value scenarios separately.",
+    "Do not claim verified Newark transmission-upgrade deferral or avoided cost.",
+    "Keep bus purchase cost separate from incremental V2G retrofit economics.",
+    "Do not double-count charging losses; regulation comparator formula subtracts loss-energy cost once.",
+    "Use low, central, and high scenarios and label historical revenue as a sensitivity, not a forecast.",
+    "Treat all uncertainty inputs as editable and surface each source/evidence label in the demo."
+  ]
+}

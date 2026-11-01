@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#102a43">
+  <meta name="description" content="An assumption-transparent V2G fleet value simulator for a hypothetical University of Delaware bus fleet in Newark, Delaware.">
+  <title>Newark V2G Fleet Value Simulator</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script defer src="/app.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#top">Skip to simulator</a>
+  <noscript>This simulator needs JavaScript. The model and tests also run directly with Python; see README.md.</noscript>
+  <header class="topbar">
+    <a class="brand" href="#top" aria-label="Newark V2G simulator home">
+      <span class="brand-mark">V2G</span>
+      <span>GRID VALUE LAB</span>
+    </a>
+    <span class="topbar-note">ENGINEERING SCENARIO · NEWARK, DELAWARE</span>
+  </header>
+
+  <main id="top" class="page-shell">
+    <section class="hero">
+      <div class="hero-copy">
+        <p class="eyebrow">FLEET-SCALE VEHICLE-TO-GRID ANALYSIS</p>
+        <h1>Can a parked bus fleet<br><span>support the grid?</span></h1>
+        <p class="hero-description">Explore the energy a hypothetical 14-bus UD fleet could export during a summer peak event and the potential value under a PJM Regulation benchmark.</p>
+        <div class="hero-chips">
+          <span id="fleet-chip">14 bus scenario</span><span>Editable assumptions</span><span>Sources linked</span>
+        </div>
+      </div>
+      <div class="hero-stat">
+        <div class="stat-label">MODELED PEAK-EVENT EXPORT</div>
+        <div id="hero-energy" class="hero-number">—</div>
+        <div id="event-duration-label" class="stat-label">Across the modeled event</div>
+        <div class="hero-stat-rule"></div>
+        <div class="hero-stat-foot"><span id="hero-power">— kW</span><span>energy-limited average</span></div>
+      </div>
+    </section>
+
+    <div class="notice" role="note">
+      <span class="notice-icon">i</span>
+      <p><strong>Scenario model, not a UD feasibility study.</strong> UD’s published bus count is used as fleet size only. The real buses are not assumed to be electric or V2G-ready. No Newark feeder limit or transmission upgrade is inferred.</p>
+    </div>
+
+    <section class="section-heading">
+      <div><p class="eyebrow">RESULTS</p><h2>What the scenario says</h2></div>
+      <div class="mode-label"><span class="live-dot"></span> Updates as you edit inputs</div>
+    </section>
+
+    <p id="calculation-status" role="status">Loading default assumptions - </p>
+    <section class="results-grid" aria-live="polite">
+      <article class="result-card result-card-primary">
+        <div class="card-top"><span class="card-label">CENTRAL ANNUAL NET</span><span class="card-tag">PJM REGULATION</span></div>
+        <div id="central-net" class="big-result">—</div>
+        <p>After modeled energy losses, aggregator fee, battery wear, and annualized V2G capital.</p>
+        <div class="result-divider"></div>
+        <div class="mini-metrics"><div><span>Operating net</span><strong id="central-operating">—</strong></div><div><span>Annualized capital</span><strong id="annualized-capital">—</strong></div></div>
+      </article>
+      <article class="result-card">
+        <div class="card-top"><span class="card-label">LOW CASE</span><span class="card-tag card-tag-muted">HISTORICAL PRICE</span></div>
+        <div id="low-net" class="medium-result">—</div>
+        <p>Editable low case; default is the lowest annual average in the cited 2021–2025 period.</p>
+        <div class="result-divider"></div>
+        <div class="small-line"><span>Gross market revenue</span><strong id="low-gross">—</strong></div>
+      </article>
+      <article class="result-card">
+        <div class="card-top"><span class="card-label">HIGH CASE</span><span class="card-tag card-tag-muted">HISTORICAL PRICE</span></div>
+        <div id="high-net" class="medium-result">—</div>
+        <p>Editable high case; default is the highest annual average in the cited 2021–2025 period.</p>
+        <div class="result-divider"></div>
+        <div class="small-line"><span>Gross market revenue</span><strong id="high-gross">—</strong></div>
+      </article>
+    </section>
+
+    <section class="content-grid">
+      <div class="panel chart-panel">
+        <div class="panel-heading"><div><p class="eyebrow">VALUE RANGE</p><h3>Annual net by price case</h3></div><span class="unit-pill">USD / YEAR</span></div>
+        <div id="scenario-chart" class="bar-chart" role="img" aria-label="Annual net value comparison across low, central, and high cases"></div>
+        <p class="chart-note">Historical price sensitivity, not a forecast. PJM participation and bus availability assumptions must hold.</p>
+      </div>
+      <div class="panel energy-panel">
+        <div class="panel-heading"><div><p class="eyebrow">PEAK EVENT</p><h3>Available energy</h3></div><span id="event-pill" class="unit-pill">EVENT</span></div>
+        <div class="energy-flow"><div><span>Battery energy above route reserve</span><strong id="battery-energy">—</strong></div><div><span>Average export power</span><strong id="event-power">—</strong></div><div><span>Annual energy at event count</span><strong id="annual-event-energy">—</strong></div></div>
+        <div class="capacity-track"><div id="capacity-fill" class="capacity-fill"></div></div>
+        <div class="capacity-labels"><span>Energy-limited power</span><span id="nameplate-capacity">— kW nameplate</span></div>
+      </div>
+    </section>
+
+    <section class="panel breakdown-panel">
+      <div class="panel-heading"><div><p class="eyebrow">CENTRAL CASE</p><h3>Where the annual value goes</h3></div><span class="unit-pill">USD / YEAR</span></div>
+      <div class="breakdown-grid">
+        <div class="breakdown-item"><span>Gross regulation revenue</span><strong id="gross-revenue">—</strong><small>Historical price × available hours × dispatch rating</small></div>
+        <div class="breakdown-item"><span>Energy for round-trip losses</span><strong id="loss-cost">—</strong><small>Charged once using the UD-class tariff proxy</small></div>
+        <div class="breakdown-item"><span>Aggregator fee</span><strong id="aggregator-fee">—</strong><small>Editable scenario assumption</small></div>
+        <div class="breakdown-item"><span>Battery wear</span><strong id="wear-cost">—</strong><small>Editable cost per kWh throughput</small></div>
+      </div>
+    </section>
+
+    <section class="section-heading inputs-heading">
+      <div><p class="eyebrow">SCENARIO CONTROLS</p><h2>Change the assumptions</h2></div>
+      <button id="reset-button" class="reset-button" type="button">Reset to defaults</button>
+    </section>
+
+    <section class="inputs-layout">
+      <div class="panel input-panel">
+        <div class="input-group">
+          <div class="input-group-title"><span class="input-icon">01</span><div><h3>Fleet & battery</h3><p>Scenario size and energy reserve before the next route.</p></div></div>
+          <div class="field-grid">
+            <label>Fleet size <span class="field-source">UD count · scenario size</span><div class="input-wrap"><input data-key="bus_count" type="number" min="0" max="1000" step="1"><span>buses</span></div></label>
+            <label>Connected buses (both scenarios) <span class="field-source">Shared availability assumption</span><div class="input-wrap"><input data-key="available_buses" type="number" min="0" max="1000" step="1"><span>buses</span></div></label>
+            <label>Battery capacity <span class="field-source">155 kWh comparison bus</span><div class="input-wrap"><input data-key="battery_kwh" type="number" min="0" step="1"><span>kWh / bus</span></div></label>
+            <label>Starting charge <span class="field-source">Scenario assumption</span><div class="input-wrap"><input data-key="starting_soc" type="number" min="0" max="100" step="1"><span>%</span></div></label>
+            <label>Minimum before next route <span class="field-source">Route reserve placeholder</span><div class="input-wrap"><input data-key="departure_soc" type="number" min="0" max="100" step="1"><span>%</span></div></label>
+            <label>Bidirectional charger <span class="field-source">60 kW product benchmark</span><div class="input-wrap"><input data-key="charger_kw" type="number" min="0" step="1"><span>kW / bus</span></div></label>
+          </div>
+        </div>
+        <div class="input-group">
+          <div class="input-group-title"><span class="input-icon">02</span><div><h3>Peak event</h3><p>Duration and event count affect event energy only. The site ceiling also limits the market bid.</p></div></div>
+          <div class="field-grid">
+            <label>Event duration <span class="field-source">3-hour demo comparator</span><div class="input-wrap"><input data-key="event_hours" type="number" min="0.1" step="0.5"><span>hours</span></div></label>
+            <label>Events per year <span class="field-source">Scenario assumption</span><div class="input-wrap"><input data-key="events_per_year" type="number" min="0" step="1"><span>events</span></div></label>
+            <label>Site export limit <span class="field-source">Not a utility approval</span><div class="input-wrap"><input data-key="site_export_limit_kw" type="number" min="0" step="10"><span>kW</span></div></label>
+          </div>
+        </div>
+        <div class="input-group">
+          <div class="input-group-title"><span class="input-icon">03</span><div><h3>Market & operating costs</h3><p>Market participation is a scenario, not confirmed enrollment.</p></div></div>
+          <div class="field-grid">
+            <label>UD energy rate proxy <span class="field-source">Newark 2024 study · verify current contract</span><div class="input-wrap"><input data-key="electricity_rate" type="number" min="0" step="0.001"><span>$/kWh</span></div></label>
+            <label>Round-trip efficiency <span class="field-source">UD/Exelon measured comparator</span><div class="input-wrap"><input data-key="round_trip_efficiency" type="number" min="0" max="100" step="1"><span>%</span></div></label>
+            <label>Event discharge efficiency <span class="field-source">UD/Exelon measured maximum proxy</span><div class="input-wrap"><input data-key="discharge_efficiency" type="number" min="0" max="100" step="1"><span>%</span></div></label>
+            <label>Aggregator fee <span class="field-source">Editable assumption</span><div class="input-wrap"><input data-key="aggregator_fee_fraction" type="number" min="0" max="100" step="1"><span>% of gross</span></div></label>
+            <label>Battery wear cost <span class="field-source">Editable assumption</span><div class="input-wrap"><input data-key="battery_wear_cost" type="number" min="0" step="0.005"><span>$/kWh</span></div></label>
+            <label>Available market hours <span class="field-source">128 h/week comparator case</span><div class="input-wrap"><input data-key="available_hours_per_week" type="number" min="0" max="168" step="1"><span>hours / week</span></div></label>
+            <label>Regulation dispatch power <span class="field-source">29 kW measured pilot proxy</span><div class="input-wrap"><input data-key="regulation_power_kw" type="number" min="0" step="1"><span>kW / bus</span></div></label>
+            <label>Average regulation throughput <span class="field-source">Measured pilot ratio</span><div class="input-wrap"><input data-key="regulation_throughput_ratio" type="number" min="0" max="100" step="1"><span>% of bid</span></div></label>
+            <label>Low historical price <span class="field-source">2023 annual average · editable</span><div class="input-wrap"><input data-key="price_low" type="number" min="0" step="0.01"><span>$/MWh</span></div></label>
+            <label>Central historical price <span class="field-source">2021–2025 mean · editable</span><div class="input-wrap"><input data-key="price_central" type="number" min="0" step="0.01"><span>$/MWh</span></div></label>
+            <label>High historical price <span class="field-source">2022 annual average · editable</span><div class="input-wrap"><input data-key="price_high" type="number" min="0" step="0.01"><span>$/MWh</span></div></label>
+          </div>
+        </div>
+      </div>
+      <aside class="panel cost-panel">
+        <div class="input-group-title"><span class="input-icon">04</span><div><h3>Capital cost case</h3><p>Compare different V2G hardware assumptions.</p></div></div>
+        <label class="select-label">Equipment scenario<select id="cost-case"><option value="ac_incremental_plus_site_proxy">AC V2G incremental estimate</option><option value="dc_chargers_plus_site_proxy">60 kW bidirectional DC chargers</option></select></label>
+        <div class="field-stack">
+          <label>AC incremental equipment cost <span class="field-source">Manufacturing estimate  -  editable proxy</span><div class="input-wrap"><input data-key="ac_incremental_cost_per_kw" type="number" min="0" step="1"><span>$/kW</span></div></label>
+          <label>DC charger unit cost <span class="field-source">2022 case price  -  editable proxy</span><div class="input-wrap"><input data-key="dc_charger_cost_per_bus" type="number" min="0" step="1"><span>$/bus</span></div></label>
+          <label>Annual maintenance allowance <span class="field-source">Excluded by default; enter an assumption</span><div class="input-wrap"><input data-key="maintenance_cost" type="number" min="0" step="1"><span>$/year</span></div></label>
+          <label>Site make-ready proxy <span class="field-source">Single-project inference · not transmission cost</span><div class="input-wrap"><input data-key="site_cost" type="number" min="0" step="1000"><span>USD</span></div></label>
+          <label>Transmission upgrade quote <span class="field-source">Leave blank until utility estimate exists</span><div class="input-wrap"><input data-key="transmission_upgrade_cost_usd" type="number" min="0" step="10000" placeholder="Not estimated"><span>USD</span></div></label>
+          <label>Asset life <span class="field-source">Scenario assumption</span><div class="input-wrap"><input data-key="asset_life_years" type="number" min="1" step="1"><span>years</span></div></label>
+          <label>Discount rate <span class="field-source">Scenario assumption</span><div class="input-wrap"><input data-key="discount_rate" type="number" min="0" max="99" step="1"><span>%</span></div></label>
+        </div>
+        <div class="cost-summary"><span>Selected V2G project capex</span><strong id="selected-capex">—</strong><small id="selected-cost-note">Bus purchase cost is excluded from incremental V2G economics.</small></div>
+      <dl class="cost-details">
+          <dt>Selected equipment</dt><dd id="equipment-result"> - </dd>
+          <dt>Site installation proxy</dt><dd id="site-result"> - </dd>
+          <dt>Transmission quote</dt><dd id="transmission-result"> - </dd>
+          <dt>Annual maintenance allowance</dt><dd id="maintenance-result"> - </dd>
+          <dt>Simple payback (before annualization)</dt><dd id="payback-result"> - </dd>
+          <dt>Full bus acquisition reference  -  excluded</dt><dd id="bus-result"> - </dd>
+          <dt>DC equipment alternative  -  not added</dt><dd id="dc-result"> - </dd>
+        </dl>
+        <p>Unknown transmission cost is excluded, not free. No upgrade or deferral value is predicted.</p>
+      </aside>
+    </section>
+
+    <section class="panel assumptions-panel">
+      <div class="panel-heading"><div><p class="eyebrow">TRACEABLE INPUTS</p><h3>Sources behind the defaults</h3></div></div>
+      <div class="source-list">
+        <div><span class="source-bullet">01</span><p><strong>UD / Exelon V2G fleet report (2026)</strong><br>Regulation prices, efficiency, dispatch throughput, and measured EV power; report-specific EV evidence, not bus tests.</p><a href="https://bpb-us-w2.wpmucdn.com/sites.udel.edu/dist/5/8632/files/2026/06/UD-Exelon-Report-V2G-Fleet-Operation-2026.pdf" target="_blank" rel="noreferrer">Open report ↗</a></div>
+        <div><span class="source-bullet">02</span><p><strong>Newark Electric Cost-of-Service Study (2024)</strong><br>UD large-light-and-power energy-rate proxy of $0.0744/kWh; verify against the current contract.</p><a href="https://newarkde.gov/DocumentCenter/View/18860/4A" target="_blank" rel="noreferrer">Open study ↗</a></div>
+        <div><span class="source-bullet">03</span><p><strong>WRI Electric School Bus V2G examples</strong><br>155 kWh / 60 kW comparison case; separate 2022 report for bus and V2G DC charger prices.</p><a href="https://electricschoolbusinitiative.org/latest-lessons-electric-school-bus-vehicle-grid-programs" target="_blank" rel="noreferrer">Open V2G examples ↗</a></div>
+        <div><span class="source-bullet">04</span><p><strong>WRI bus, charger, and installation cost case</strong><br>Reported V2G bus and 60 kW charger prices from a North Carolina demonstration.</p><a href="https://www.wri.org/update/electric-school-bus-series-how-north-carolinas-eastern-band-cherokee-indians-planning-seven" target="_blank" rel="noreferrer">Open cost case ↗</a></div>
+        <div><span class="source-bullet">05</span><p><strong>Newark citywide annual peak</strong><br>Used as local context only. It does not describe UD’s feeder or export limit.</p><a href="https://documents.dnrec.delaware.gov/energy/office/Grid-Analysis-Interim-Report-20251217.pdf" target="_blank" rel="noreferrer">Open DNREC report ↗</a></div>
+      </div>
+      <p class="bibliography-link">Full bibliography and data-use notes: <a href="/SOURCES.md" target="_blank">SOURCES.md ↗</a> · <a href="/PROJECT_SPEC.md" target="_blank">Project specification ↗</a></p>
+    </section>
+
+    <details class="panel assumptions-panel">
+      <summary>Default evidence register  -  values, units and provenance</summary>
+      <p>These are original defaults, not your edited scenario. All numerical scenario inputs can be edited above or in config/scenario_defaults.json. Source dates and links are in <a href="/SOURCES.md">SOURCES.md</a>; missing dates or units are not independently established. User edits are assumptions, not new measured facts.</p>
+      <div class="table-scroll"><table><thead><tr><th>Default input</th><th>Value / units where recorded</th><th>Evidence type</th><th>Source and limits</th></tr></thead><tbody id="evidence-body"></tbody></table></div>
+    </details>
+    <section class="panel assumptions-panel"><h3>How to read the money</h3><p>PJM Regulation pays for available power to help balance the grid. This historical benchmark subtracts incremental charging losses, aggregator fees, throughput-based battery wear, maintenance allowance, and annualized selected capital. Normal driving energy and bus purchase cost belong to the same-electric-bus baseline and are excluded. Taxes, incentives, financing fees, and unquoted site costs are excluded. A zero maintenance allowance means no cost modeled.</p><p>The physical peak-event scenario has no modeled payment or energy savings. Do not add it or the separate Delmarva TOU comparator to annual regulation value. Annual regulation does not simulate route schedules, battery charge trajectories, qualification, or performance scoring. The AC manufacturing increment is not a complete commercial system price.</p></section>
+    <details class="limitations panel">
+      <summary>Model limits and interpretation</summary>
+      <ul id="limitation-list"></ul>
+      <p>The PJM scenario uses editable weekly market hours and the shared connected-bus count. Both scenarios require compatible hardware and interconnection; market qualification is unverified. The two outputs are not added together.</p>
+    </details>
+
+    <footer class="footer"><span>NEWARK V2G FLEET VALUE SIMULATOR</span><span>Scenario model · Inputs accessed October 17, 2026</span></footer>
+  </main>
+</body>
+</html>
